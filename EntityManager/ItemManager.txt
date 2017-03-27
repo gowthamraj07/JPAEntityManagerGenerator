@@ -1,0 +1,66 @@
+package com.techryte.catering.manager;
+
+import java.util.List;
+
+import javax.persistence.Query;
+
+import org.springframework.stereotype.Component;
+
+import com.techryte.catering.model.Item;
+
+@Component
+public class ItemManager extends AbstractEntityManager {
+	
+	public void addItem(Item i) {
+		getEntityManager().getTransaction().begin();
+		getEntityManager().persist(i);
+		getEntityManager().getTransaction().commit();
+	}
+	
+	public void addItems(List<Item> li) {
+		getEntityManager().getTransaction().begin();
+		for(Item i : li) {
+			getEntityManager().persist(i);
+		}
+		getEntityManager().getTransaction().commit();
+	}
+
+	public List<Item> getAllItem() {
+		List<Item> list = getEntityManager().createQuery("select i from Item i", Item.class).getResultList();
+		return list;
+	}
+	
+	public long getItemsCount() {
+		Query query = getEntityManager().createQuery("SELECT count(i) FROM Item i");
+        long count = (long) query.getSingleResult();
+        return count;
+	}
+	
+	public Item getItemByItemName(String itemName) {
+		Item result = getEntityManager().createQuery("SELECT i FROM Item i WHERE i.name like :itemName", Item.class)
+										.setParameter("itemName", "%"+itemName+"%")
+										.getResultList().get(0);
+		return result;
+	}
+	
+	public List<Item> getItemByCategoryName(String categoryName) {
+		List<Item> result = getEntityManager().createQuery("SELECT i FROM Item i WHERE i.categoryName like :categoryName", Item.class)
+										.setParameter("categoryName", "%"+categoryName+"%")
+										.getResultList();
+		return result;
+	}
+	
+	public Item getItemByItemId(int itemId) {
+		Item result = getEntityManager().createQuery("SELECT i FROM Item i WHERE i.itemId=:itemId", Item.class)
+										.setParameter("itemId", itemId)
+										.getResultList().get(0);
+		return result;
+	}
+	
+	public List<String> getCategoryList() {
+		List<String> result = getEntityManager().createQuery("SELECT DISTINCT(i.categoryName) FROM Item i ", String.class)
+				.getResultList();
+		return result;
+		
+	}
+}
